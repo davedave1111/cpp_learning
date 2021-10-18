@@ -50,8 +50,7 @@ int main()
 }
 
 
-//This function is used to interact with the user and verify the input they give is 
-//appropriate. 
+//This function is used to interact with the user to get their date input
 std::string promptInput()
 {
     std::string usrInput; //create a string to store the users input
@@ -112,7 +111,7 @@ std::array<int,3> parseDate(std::string input)
         dateInt = stoi(dateString); //parses an int from the date string
         yearInt = stoi(yearString); //parses an int from the year string
 
-        std::array<int, 3> date; //declare the array we will use to return our 3 different ints \
+        std::array<int, 3> date; //declare the array we will use to return our 3 different ints 
 
         //add month, day, and year to our array
         date[0] = monthInt; 
@@ -124,7 +123,7 @@ std::array<int,3> parseDate(std::string input)
 }
 
 
-//This function takes an array of ints 3 long, for teh date. It then verifies the date is valid, including proper leap year, no dates outside
+//This function takes an array of ints 3 long, for the date. It then verifies the date is valid, including proper leap year, no dates outside
 //of a month, etc. If it is valid, it returns true, meaning the program may continue. Otherwise, it returns false so we know to reprompt the 
 //user for a valid date. 
 bool verifyDate(int monthInt, int dateInt, int yearInt)
@@ -203,21 +202,25 @@ std::string calculateDay(int month, int date, int year)
 //This function is pretty straight forward. It takes an int, year, and returns a boolean. If the year is a leap year, it returns true. Otherwise, false
 bool isLeapYear(int year)
 {
-    if(year%4 == 0)
+    if(year%4 == 0) //if it is divisable by 4, it might be a leap year
     { 
-        if(year%100 == 0)
+        if(year%100 == 0) // if divisable by 4 and by 100, it also must be divisable by 400 to be a leap year       
         {
-            if(year%400 == 0)
+            if(year%400 == 0) // if divisable by 4, 100, and 400, it is a leap year
             {
                 return true;
             }
+            else //if divisable by 4 and 100, but not 400, its not a leap year
+            {
+                return false;
+            }
         }
-        else
+        else // if its divisable by 4, but not 100, its a leap year
         {
             return true;
         }
     }
-    else
+    else //if not divisable by 4, its not a leap year
     {
         return false;
     }
