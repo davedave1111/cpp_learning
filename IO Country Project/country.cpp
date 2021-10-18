@@ -1,5 +1,9 @@
 #include <iostream>
- 
+ /*
+
+ This is project 1 of the C++ course I'm currently taking on udemy 
+ @author David Bixler
+ */
  int main()
  {
      std::string usrCountry = "";
