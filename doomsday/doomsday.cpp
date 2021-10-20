@@ -20,7 +20,7 @@ int calculateDay(int doomsday, int month, int date, int year);
 std::map<int, std::string> DAY_MAP; //Here we declare the map we will use to map our calculated day int to a string to print back to the user
 
 
-bool DEBUG_MODE = true; //Used to enable verbose debugging printing 
+bool DEBUG_MODE = false; //Used to enable verbose debugging printing 
 
 
 int main()
@@ -34,40 +34,51 @@ int main()
     DAY_MAP.insert(std::make_pair(5, "Friday"));
     DAY_MAP.insert(std::make_pair(6, "Saturday"));
 
-    //These ints will be used once we've asked the user for a date, parsed and verfied it in order to do the doomsday algorithm calculation
-    int month; //create month int 
-    int date; //create date int
-    int year; // create year int
+    bool running = true;
 
-    std::string usrInput = promptInput(); //prompt the user for the date, which returns a string we store in usrInput
-    std::array<int, 3> dateArray = parseDate(usrInput); //we parse the 3 different ints from month, date, and year from the usrInput, which gets returned as an array
+    std::cout << "This program can calculate the day of the week of any given calendar day. Enter dates in MM/DD/YYYY format. \nExample: 09/23/1456 \n\nTo quit the program, type \"exit\" at any time " << std::endl;
 
-    if(dateArray.empty()) //if the array is empty, then the user input was an invalid format
+    while(running)
     {
-        std::cout << "Invalid Input, please try again!" << std::endl;
-    }
+        //These ints will be used once we've asked the user for a date, parsed and verfied it in order to do the doomsday algorithm calculation
+        int month; //create month int 
+        int date; //create date int
+        int year; // create year int
 
-    else //otherwise, we know they entered a valid date format, and we check to make sure the date date itself makes sense 
-    {
-        month = dateArray[0]; //grab month int from the array
-        date = dateArray[1]; //grab date int from the array
-        year = dateArray[2]; //grab year int from the array
-
-        bool dateValid = verifyDate(month, date, year); //create a variable that will store the results of our date verification, call the verifyDate method passing in the date values
-
-        if(dateValid) //this is for testing purposes ATM, if its valid, we print that it is and print the date back to them. This shows the parsing and verifaction process worked
+        std::string usrInput = promptInput(); //prompt the user for the date, which returns a string we store in usrInput
+        if(usrInput == "exit")
         {
-            //These couple lines print the formatted answer to the date. 
-            std::cout << "The date " + std::to_string(month) + "/" + std::to_string(date) + "/" + std::to_string(year) + " falls on a " 
-            + DAY_MAP[calculateDay(calculateDoomsday(year), month, date, year)] << std::endl << std::endl; 
+            running = false;
+            break;
+        }
+        std::array<int, 3> dateArray = parseDate(usrInput); //we parse the 3 different ints from month, date, and year from the usrInput, which gets returned as an array
+
+        if(dateArray.empty()) //if the array is empty, then the user input was an invalid format
+        {
+            std::cout << "Invalid Input, please try again!" << std::endl;
         }
 
-        else //else, we tell them the date they entered wasn't valid
+        else //otherwise, we know they entered a valid date format, and we check to make sure the date date itself makes sense 
         {
-            std::cout << "Date invalid, please enter a valid date!" << std::endl;
+            month = dateArray[0]; //grab month int from the array
+            date = dateArray[1]; //grab date int from the array
+            year = dateArray[2]; //grab year int from the array
+
+            bool dateValid = verifyDate(month, date, year); //create a variable that will store the results of our date verification, call the verifyDate method passing in the date values
+
+            if(dateValid) //this is for testing purposes ATM, if its valid, we print that it is and print the date back to them. This shows the parsing and verifaction process worked
+            {
+                //These couple lines print the formatted answer to the date. 
+                std::cout << "The date " + std::to_string(month) + "/" + std::to_string(date) + "/" + std::to_string(year) + " falls on a " 
+                + DAY_MAP[calculateDay(calculateDoomsday(year), month, date, year)] << std::endl << std::endl; 
+            }
+
+            else //else, we tell them the date they entered wasn't valid
+            {
+                std::cout << "Date invalid, please enter a valid date!" << std::endl;
+            }
         }
     }
-
 }
 
 
@@ -75,7 +86,7 @@ int main()
 std::string promptInput()
 {
     std::string usrInput; //create a string to store the users input
-    std::cout << "Enter a date for which you'd like to know the day it falls on. Must be in a MM/DD/YYYY Format \n Example: \"09/23/1922\" " <<std::endl; //request input
+    std::cout << "Enter a date: \n" <<std::endl; //request input
     std::cin >> usrInput; //gather user input 
 
     return usrInput; //returns the user input as a string to the calling function
