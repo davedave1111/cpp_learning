@@ -1,11 +1,15 @@
-#include <iostream>
-#include <array>
 /*
     @author David Bixler 
     This program is a doomsday calculator. No, this doesn't calculate the day when a giant space rock 
     slams into the earth, it uses the doomsday algorithm to calculate the day that any date falls on in history. 
 */
 
+#include <iostream>
+#include <array>
+#include <map>
+#include <string>
+
+//Declaring all of the functions used in the program 
 std::string promptInput();
 std::array<int,3> parseDate(std::string input);
 int calculateDoomsday(int year);
@@ -13,9 +17,23 @@ bool verifyDate(int month, int date, int year);
 bool isLeapYear(int year);
 int calculateDay(int doomsday, int month, int date, int year);
 
+std::map<int, std::string> DAY_MAP; //Here we declare the map we will use to map our calculated day int to a string to print back to the user
+
+
+bool DEBUG_MODE = true; //Used to enable verbose debugging printing 
+
 
 int main()
 {
+    //Insert all of our days into our map 
+    DAY_MAP.insert(std::make_pair(0, "Sunday"));
+    DAY_MAP.insert(std::make_pair(1, "Monday"));
+    DAY_MAP.insert(std::make_pair(2, "Tuesday"));
+    DAY_MAP.insert(std::make_pair(3, "Wednesday"));
+    DAY_MAP.insert(std::make_pair(4, "Thursday"));
+    DAY_MAP.insert(std::make_pair(5, "Friday"));
+    DAY_MAP.insert(std::make_pair(6, "Saturday"));
+
     //These ints will be used once we've asked the user for a date, parsed and verfied it in order to do the doomsday algorithm calculation
     int month; //create month int 
     int date; //create date int
@@ -34,17 +52,19 @@ int main()
         month = dateArray[0]; //grab month int from the array
         date = dateArray[1]; //grab date int from the array
         year = dateArray[2]; //grab year int from the array
-        
+
         bool dateValid = verifyDate(month, date, year); //create a variable that will store the results of our date verification, call the verifyDate method passing in the date values
 
         if(dateValid) //this is for testing purposes ATM, if its valid, we print that it is and print the date back to them. This shows the parsing and verifaction process worked
         {
-            std::cout << calculateDay(calculateDoomsday(year), month, date, year) << std::endl; 
+            //These couple lines print the formatted answer to the date. 
+            std::cout << "The date " + std::to_string(month) + "/" + std::to_string(date) + "/" + std::to_string(year) + " falls on a " 
+            + DAY_MAP[calculateDay(calculateDoomsday(year), month, date, year)] << std::endl << std::endl; 
         }
 
         else //else, we tell them the date they entered wasn't valid
         {
-            std::cout << "Date invalid" << std::endl;
+            std::cout << "Date invalid, please enter a valid date!" << std::endl;
         }
     }
 
@@ -58,7 +78,7 @@ std::string promptInput()
     std::cout << "Enter a date for which you'd like to know the day it falls on. Must be in a MM/DD/YYYY Format \n Example: \"09/23/1922\" " <<std::endl; //request input
     std::cin >> usrInput; //gather user input 
 
-    return usrInput;
+    return usrInput; //returns the user input as a string to the calling function
 
 }
 
@@ -78,11 +98,11 @@ std::array<int,3> parseDate(std::string input)
     {
         if (input.at(count) == '/') //When the loop reaches a slash, it counts how many slashes it has, and iterated to the next char
         {
-            slashCount++;
-            count++;
+            slashCount++; //iterate the slash count
+            count++; //iterate the for loop count so we don't consider the slash as part of the actual date
         }
 
-        switch(slashCount) //Checks which slash it has reached
+        switch(slashCount) //Checks which slash it has reached so it can append to the correct string 
         {
             case 0: //No slash reached yet, so we are reading the month
             monthString+=input.at(count);
@@ -127,12 +147,8 @@ std::array<int,3> parseDate(std::string input)
 //This function takes an array of ints 3 long, for the date. It then verifies the date is valid, including proper leap year, no dates outside
 //of a month, etc. If it is valid, it returns true, meaning the program may continue. Otherwise, it returns false so we know to reprompt the 
 //user for a valid date. 
-bool verifyDate(int monthInt, int dateInt, int yearInt)
+bool verifyDate(int month, int date, int year)
 {
-    int month = monthInt;
-    int date = dateInt;
-    int year = yearInt;
-
     //checking to make sure we don't have a month before january or after december 
     if(month > 12 && month <= 0)
     {
@@ -192,9 +208,7 @@ bool verifyDate(int monthInt, int dateInt, int yearInt)
 }
 
 
-//This function contains the doomsday algorithm. It takesn array of 3 objects of type int. Once we have verified that the date entered is not
-//only in the proper format but is actually a valid date (ei no february 31st, or crazy stuff) we pass the array of dates to actually calculate 
-//the day. It then returns the day as a string to be printed to the console. 
+//This function contains part of doomsday algorithm. It takes a single int, year. The year is used to calculate what day each doomsday falls on every month.
 int calculateDoomsday(int year)
 {
     //first portion of the algorithm (atleast the way I'm implementing it here) is to determine the day of the week the doomsdays will be for 
@@ -208,26 +222,32 @@ int calculateDoomsday(int year)
     //this is the "code", we will use this to calculate the doomsdays for any given year, by determining the doomsday the first year of the century
     int centuryCode;
 
-    if(remainder >= 0 && remainder <= 99)
+    if(remainder >= 0 && remainder <= 99) //if the century is evenly divisible by 400, the doomsdays fall on a Tuesday, so we set the century code to 2
     {
         centuryCode = 2; 
     }
     
-    else if(remainder >= 100 && remainder <= 199)
+    else if(remainder >= 100 && remainder <= 199) //if the century isn't divisible by 400, and the remainder is 100, then the doomsday is Sunday, so we set the century code to 0
     {
         centuryCode = 0; 
     }
 
-    else if(remainder >= 200 && remainder <= 299)
+    else if(remainder >= 200 && remainder <= 299) //if the remainder is 200, we set theh century code to 5 for friday 
     {
         centuryCode = 5; 
     }
     
-        else if(remainder >= 300 && remainder <= 399)
+        else if(remainder >= 300 && remainder <= 399) //if the remainder is 300, we set the century code to 3 for wednesday 
     {
         centuryCode = 3; 
     }
+    
 
+    //Debug mode print statement to return calculated century code to the user 
+    if(DEBUG_MODE)
+    {
+        std::cout << "CENTURY CODE: " + std::to_string(centuryCode) << std::endl;
+    }
 
     //Next, we need to know which year in the century we are dealing with. First, we find the century, then subract it
     //from the year to find which year in the century we are in (from 0-99, ie if the century is 2000, 2000-2099)
@@ -241,13 +261,18 @@ int calculateDoomsday(int year)
     int remainderYear = yearTensPlace%12;
 
     //find how many times 4 goes into the year remainder 
-    int remainder2 = remainderYear%4;
+    int remainder2 = remainderYear/4;
 
     //Next, we can calculate the doomsday in the given year using the numbers we've calculated, adding them, then 
     //finding the remainder when divided by 7. This remainder is the day code. This is the day all doomsdays in the given
     //year will be on. (So if the doomsday code is 0, then all the doomsdays in a year will be on a sunday.)
 
     int doomsday = (centuryCode+quotientYear+remainderYear+remainder2)%7;
+
+    if(DEBUG_MODE)
+    {
+        std::cout << "DOOMSDAY: " + DAY_MAP[doomsday] << std::endl;
+    }
 
     //return the doomsday day code
     return doomsday;
@@ -331,10 +356,29 @@ int calculateDay(int doomsday, int month, int date, int year)
 
     }
 
+ 
+
     //Now we know the date of a day in the same month as the date we are given, so it just a simple calculation of 
     //finding how far our given date is from the doomsday in that month, then calculating the day
 
-    int day = ((date-doomsdayDate)+doomsday) % 7;
+    int day = ((abs(date-doomsdayDate))+doomsday) % 7;
+
+    if(DEBUG_MODE)
+    {
+        std::string yearIsLeapString;
+        if(yearIsLeap)
+        {
+            yearIsLeapString = "true";
+        }
+        else 
+        {
+            yearIsLeapString = "false";
+        }
+        std::cout << "LEAP YEAR?: " + yearIsLeapString << std::endl;
+        std::cout << "DOOMSDAY DATE USED: " + std::to_string(month) + '/' + std::to_string(doomsdayDate) << std::endl;
+        std::cout << "DAY NUMBER: " + std::to_string(day) << std::endl;
+    }
+
     return day;
 
 }
