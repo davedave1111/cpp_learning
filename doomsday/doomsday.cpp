@@ -219,25 +219,29 @@ int calculateDoomsday(int year)
     //Find the remainder of the year mod 400
     int remainder = year%400;
 
+    //this calculates the century a given year is in (1983 would become 1900, 1746 would be 1700, and so on)
+    //this will be used to help us calculate the century code, which will then be used to find the doomsdays for that year
+    int century = ((year/100)*100);
+
     //this is the "code", we will use this to calculate the doomsdays for any given year, by determining the doomsday the first year of the century
     int centuryCode;
 
-    if(remainder >= 0 && remainder <= 99) //if the century is evenly divisible by 400, the doomsdays fall on a Tuesday, so we set the century code to 2
+    if(century%400 == 0) //if the century is evenly divisible by 400, the doomsdays fall on a Tuesday, so we set the century code to 2
     {
         centuryCode = 2; 
     }
     
-    else if(remainder >= 100 && remainder <= 199) //if the century isn't divisible by 400, and the remainder is 100, then the doomsday is Sunday, so we set the century code to 0
+    else if(century%400 == 100) //if the century isn't divisible by 400, and the remainder is 100, then the doomsday is Sunday, so we set the century code to 0
     {
         centuryCode = 0; 
     }
 
-    else if(remainder >= 200 && remainder <= 299) //if the remainder is 200, we set theh century code to 5 for friday 
+    else if(century%400 == 200) //if the remainder is 200, we set theh century code to 5 for friday 
     {
         centuryCode = 5; 
     }
     
-        else if(remainder >= 300 && remainder <= 399) //if the remainder is 300, we set the century code to 3 for wednesday 
+    else if(century%400 == 300) //if the remainder is 300, we set the century code to 3 for wednesday 
     {
         centuryCode = 3; 
     }
@@ -249,10 +253,9 @@ int calculateDoomsday(int year)
         std::cout << "CENTURY CODE: " + std::to_string(centuryCode) << std::endl;
     }
 
-    //Next, we need to know which year in the century we are dealing with. First, we find the century, then subract it
-    //from the year to find which year in the century we are in (from 0-99, ie if the century is 2000, 2000-2099)
-
-    int yearTensPlace = year - ((year/100)*100);
+    //In order to do the next set of calculations, we must know where our year falls in the century given (ei, if we are given 1564, we need to know 64 is the year)
+    //we acheive this by subracting the century we calculated early from the given year, and storing it in yearTensPlace
+    int yearTensPlace = year - century;
 
     //find how many times 12 goes into the year
     int quotientYear = yearTensPlace/12;
