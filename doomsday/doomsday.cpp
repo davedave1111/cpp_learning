@@ -34,10 +34,13 @@ int main()
     DAY_MAP.insert(std::make_pair(5, "Friday"));
     DAY_MAP.insert(std::make_pair(6, "Saturday"));
 
+    //sentinel boolean to control the program loop
     bool running = true;
 
+    //Prints out information about the program and how to use it
     std::cout << "This program can calculate the day of the week of any given calendar day. Enter dates in MM/DD/YYYY format. \nExample: 09/23/1456 \n\nTo quit the program, type \"exit\" at any time " << std::endl;
 
+    //program loop
     while(running)
     {
         //These ints will be used once we've asked the user for a date, parsed and verfied it in order to do the doomsday algorithm calculation
@@ -46,6 +49,8 @@ int main()
         int year; // create year int
 
         std::string usrInput = promptInput(); //prompt the user for the date, which returns a string we store in usrInput
+       
+        //checks if the user typed "exit" which changes running to false and kicks us out of the loop
         if(usrInput == "exit")
         {
             running = false;
@@ -205,7 +210,7 @@ bool verifyDate(int month, int date, int year)
 
             }
 
-            //Otherwise, we don't meet any of the proper conditions, so we return false
+            //Otherwise, we don't meet any of the proper conditions and the date cannot exist, so we return false
             else
             {
                 return false; 
@@ -223,7 +228,7 @@ bool verifyDate(int month, int date, int year)
 int calculateDoomsday(int year)
 {
     //first portion of the algorithm (atleast the way I'm implementing it here) is to determine the day of the week the doomsdays will be for 
-    //the given year. This goes by century, and we can find it using some simple math. WE find the remainder (mod) of the year by 400, as our calendar repeats 
+    //the given year. This goes by century, and we can find it using some simple math. WE find the remainder (using modolu operator) of the year by 400, as our calendar repeats 
     //every 400 years. There are 4 days the doomsdays of a given year will fall on, Sunday, Tuesday, Wednesday or Friday. Days of the week are represented as 
     //integers 0-6, with 0 starting on Sunday, 1 being Monday, and so on. 
 
@@ -256,13 +261,6 @@ int calculateDoomsday(int year)
     {
         centuryCode = 3; 
     }
-    
-
-    //Debug mode print statement to return calculated century code to the user 
-    if(DEBUG_MODE)
-    {
-        std::cout << "CENTURY CODE: " + std::to_string(centuryCode) << std::endl;
-    }
 
     //In order to do the next set of calculations, we must know where our year falls in the century given (ei, if we are given 1564, we need to know 64 is the year)
     //we acheive this by subracting the century we calculated early from the given year, and storing it in yearTensPlace
@@ -283,8 +281,10 @@ int calculateDoomsday(int year)
 
     int doomsday = (centuryCode+quotientYear+remainderYear+remainder2)%7;
 
+    //debug printing 
     if(DEBUG_MODE)
     {
+        std::cout << "CENTURY CODE: " + std::to_string(centuryCode) << std::endl;
         std::cout << "DOOMSDAY: " + DAY_MAP[doomsday] << std::endl;
     }
 
@@ -303,68 +303,69 @@ int calculateDay(int doomsday, int month, int date, int year)
     bool yearIsLeap = isLeapYear(year);
     //this is the int that we will use to store the date of our doomsday in the month, so we can do some math to figure out what day out input date is on
     int doomsdayDate;
+    
     //this switch uses the month to determine that date we need to work off of to calculate our day of the week;
     switch(month)
     {
-        case 1:
-            if(yearIsLeap)
+        case 1: //For january, the doomsday depends on if it is a leap year or not
+            if(yearIsLeap) //if it is a leap year,
             {
-                doomsdayDate = 4;
+                doomsdayDate = 4; //then the doomsday for january is on the 4th,
             }
             else 
             {
-                doomsdayDate = 3;
+                doomsdayDate = 3; //otherwise, its on the 3rd
             }
             break;
         
-        case 2:
-            if(yearIsLeap)
+        case 2: //February is similar to january, in that the doomsday depends on if it is a leap year or not
+            if(yearIsLeap) //if it is a leap year
             {
-                doomsdayDate = 29;
+                doomsdayDate = 29; //the doomsday for february is on the 29th 
             }
             else 
             {
-                doomsdayDate = 28;
+                doomsdayDate = 28; //otherwise, its on the 28th
             }
             break; 
         
-        case 3:
+        case 3: //for march it is the 14th
             doomsdayDate = 14;
             break;
 
-        case 4:
+        case 4: //for april, the 4th
             doomsdayDate = 4;
             break;
 
-        case 5:
+        case 5: //for may, the 9th
             doomsdayDate = 9;
             break;
         
-        case 6:
+        case 6: //for june, the 6th
             doomsdayDate = 6;
             break;
         
-        case 7:
+        case 7: //for july, the 11th
             doomsdayDate = 11;
             break;
         
-        case 8:
+        case 8: //for august, the 8th
             doomsdayDate = 8;
             break;
         
-        case 9:
+        case 9: //for september, the 5th
             doomsdayDate = 5;
             break;
         
-        case 10:
+        case 10: //for october, the 10th
             doomsdayDate = 10;
             break;
         
-        case 11:
+        case 11: //for november, the 7th
             doomsdayDate = 7;
             break; 
         
-        case 12:
+        case 12: //and finally, for december, the 12th
             doomsdayDate = 12;
             break;
 
@@ -375,8 +376,14 @@ int calculateDay(int doomsday, int month, int date, int year)
     //Now we know the date of a day in the same month as the date we are given, so it just a simple calculation of 
     //finding how far our given date is from the doomsday in that month, then calculating the day
 
-    int day = ((abs(date-doomsdayDate))+doomsday) % 7;
+    int daysFromDoomsday = date-doomsdayDate; //First, we find how man days away from the doomsday of the month our given date is 
+    int day = ((doomsday + daysFromDoomsday)%7); //then here, we find our day by adding how far we are away from the doomsday to the doomsday day code, and find the remainder /7
+    if(day < 0) //Now, this helps to handle if our date is before the doomsday, as the prior calculation didn't like negative days. 
+    {
+        day += 7;
+    }
 
+    //debug printing
     if(DEBUG_MODE)
     {
         std::string yearIsLeapString;
@@ -393,6 +400,7 @@ int calculateDay(int doomsday, int month, int date, int year)
         std::cout << "DAY NUMBER: " + std::to_string(day) << std::endl;
     }
 
+    //return day code to the caller function
     return day;
 
 }
